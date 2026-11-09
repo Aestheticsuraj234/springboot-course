@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Inherit from the parent; groupId and version come from it too. -->
+    <parent>
+        <groupId>com.example.shopease</groupId>
+        <artifactId>shopease-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>shop-app</artifactId>
+    <name>ShopEase :: App</name>
+    <description>Executable entry point; wires use cases to adapters.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.example.shopease</groupId>
+            <artifactId>shop-application</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.example.shopease</groupId>
+            <artifactId>shop-infrastructure</artifactId>
+        </dependency>
+        <!-- shop-domain arrives transitively through both. -->
+    </dependencies>
+
+    <build>
+        <finalName>shop-app</finalName>
+        <plugins>
+            <!-- Uber-jar: bundles this module + all sibling jars into target/shop-app.jar,
+                 runnable with  java -jar shop-app/target/shop-app.jar  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.example.shopease.app.ShopApplication</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

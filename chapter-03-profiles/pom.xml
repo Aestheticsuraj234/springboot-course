@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Chapter 3: build profiles.
+  Defaults (= local dev) live in <properties>; each profile overrides only what differs.
+  Try:  mvn -q compile exec:java                 (dev defaults)
+        mvn -q compile exec:java -Pstaging
+        mvn -q compile exec:java -Denv=prod      (property-activated profile)
+        mvn help:active-profiles -Pstaging
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.shopease</groupId>
+    <artifactId>order-notifications</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>ShopEase :: Order Notifications</name>
+    <description>Sends order confirmations over a channel chosen per environment.</description>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.11.4</junit.version>
+
+        <!-- Environment settings. These defaults are the developer's local setup.
+             Putting defaults here (instead of an activeByDefault profile) means they still
+             apply when some other profile, e.g. 'ci', is switched on. -->
+        <app.environment>local</app.environment>
+        <notification.channel>console</notification.channel>
+        <notification.from>no-reply@dev.shopease.example</notification.from>
+        <payment.gateway.url>http://localhost:8089/mock-payments</payment.gateway.url>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>   <!-- writes the active profile's values into application.properties -->
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.example.shopease.notification.NotificationApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- Explicit activation only:  mvn ... -Pstaging -->
+        <profile>
+            <id>staging</id>
+            <properties>
+                <app.environment>staging</app.environment>
+                <notification.channel>email</notification.channel>
+                <notification.from>no-reply@staging.shopease.example</notification.from>
+                <payment.gateway.url>https://sandbox.payments.example/v1</payment.gateway.url>
+            </properties>
+        </profile>
+
+        <!-- Activated by a system property:  mvn ... -Denv=prod   (or explicitly with -Pprod) -->
+        <profile>
+            <id>prod</id>
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>prod</value>
+                </property>
+            </activation>
+            <properties>
+                <app.environment>production</app.environment>
+                <notification.channel>sms</notification.channel>
+                <notification.from>ShopEase</notification.from>
+                <payment.gateway.url>https://api.payments.example/v1</payment.gateway.url>
+            </properties>
+        </profile>
+
+        <!-- Activated automatically on CI servers: GitHub Actions, GitLab etc. export CI=true.
+             Profiles can change the BUILD, not just properties: here, warnings become errors. -->
+        <profile>
+            <id>ci</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-Xlint:all</arg>
+                            </compilerArgs>
+                            <failOnWarning>true</failOnWarning>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

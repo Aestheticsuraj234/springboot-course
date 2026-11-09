@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Inherit from the parent; groupId and version come from it too. -->
+    <parent>
+        <groupId>com.example.shopease</groupId>
+        <artifactId>shopease-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>shop-application</artifactId>
+    <name>ShopEase :: Application</name>
+    <description>Use cases that orchestrate the domain through its ports.</description>
+
+    <dependencies>
+        <!-- No version: managed by the parent. -->
+        <dependency>
+            <groupId>com.example.shopease</groupId>
+            <artifactId>shop-domain</artifactId>
+        </dependency>
+    </dependencies>
+</project>

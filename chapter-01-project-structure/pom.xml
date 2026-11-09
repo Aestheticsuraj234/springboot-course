@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Chapter 1: a single-module Maven project.
+  Read this file top to bottom alongside NOTES.md - every section is annotated.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Version of the POM *schema* itself. Always 4.0.0 for Maven 3. -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ===== Coordinates (GAV): uniquely identify this artifact in any repository ===== -->
+    <groupId>com.example.shopease</groupId>   <!-- organisation, reverse-domain style -->
+    <artifactId>order-pricing</artifactId>    <!-- this project's name; becomes the jar name -->
+    <version>1.0.0-SNAPSHOT</version>         <!-- SNAPSHOT = work in progress, may change -->
+    <packaging>jar</packaging>                <!-- default is jar; decides which plugins the lifecycle runs -->
+
+    <!-- ===== Human-readable metadata (IDEs, repository UIs, generated site) ===== -->
+    <name>ShopEase :: Order Pricing</name>
+    <description>Calculates order totals with pluggable discount and GST policies.</description>
+
+    <!-- ===== Properties: reusable values, referenced elsewhere as ${name} ===== -->
+    <properties>
+        <!-- Compile for Java 21 even if Maven runs on a newer JDK. -->
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.11.4</junit.version>
+    </properties>
+
+    <!--
+      dependencyManagement pins versions WITHOUT adding anything to the classpath.
+      Importing JUnit's BOM (Bill of Materials) keeps every junit-* artifact on one version.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ===== Dependencies actually used by this project ===== -->
+    <dependencies>
+        <!-- No <version>: it comes from the BOM above.
+             scope=test: on the test classpath only, never packaged or passed on to consumers. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ===== Build: directories follow convention, so we only configure plugins ===== -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+            <!-- Lets you run the app with: mvn compile exec:java -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.example.shopease.pricing.PricingApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

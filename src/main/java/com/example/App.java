@@ -1,11 +1,17 @@
-package com.example;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+
 
 public class App {
     public static void main(String[] args) {
-        System.out.println(greet("World"));
+       Properties properties = new Properties();
+
+        System.out.println("Application props: " + properties.getProperty("app.environment") );
+        
+        try ( InputStream inputStream = )
     }
 
-    static String greet(String name) {
-        return "Hello, " + name + "!";
-    }
+   
 }
